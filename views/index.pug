@@ -2,5 +2,46 @@ html
     head
         title=title
     body
-        each file in files
-            p=file
+        div(class="row")
+            h1 Image Repository
+        div(class="row")
+            button(onclick="window.location.href='?cols=" + ( +cols - 1 ) + "'") &minus; 
+            button(onclick="window.location.href='?cols=" + ( +cols + 1 ) + "'") +
+            
+        div(class="row")
+            - var c = 0 
+            while c < cols
+                div(class="column")
+                    each file, i in files
+                        if i%cols==c
+                            img(src=file)
+                    - c++
+        style.
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+
+            .row {
+                display: flex;
+                flex-wrap: wrap;
+                padding: 0 4px;
+            }
+
+            /* Create two equal columns that sits next to each other */
+            .column {
+                flex: #{100/cols}%;
+                padding: 0 4px;
+            }
+
+            .column img {
+                margin-top: 8px;
+                vertical-align: middle;
+                width:100%;
+            }
+
