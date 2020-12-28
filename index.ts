@@ -5,7 +5,7 @@ import { join } from "path";
 import mongoose from "mongoose";
 import { ImageModel, UserModel } from "./models";
 import passport from "passport";
-import {urlencoded} from "body-parser";
+import { urlencoded } from "body-parser";
 import session from "express-session";
 config({ path: join(__dirname, "/../.env") });
 
@@ -21,6 +21,7 @@ passport.deserializeUser(UserModel.deserializeUser());
   try {
     await mongoose.connect(process.env.DB || "mongodb://localhost/", {
       useNewUrlParser: true,
+      useUnifiedTopology: true
     });
     // hard code some db entries
     // make this into a mongo thing??
@@ -87,7 +88,13 @@ const db = mongoose.connection;
 
 app.use(express.static(root));
 app.use(urlencoded({ extended: true }));
-app.use(session({secret: process.env.SECRET|| "oopsies"}));
+app.use(
+  session({
+    secret: process.env.SECRET || "oopsies",
+    resave: true,
+    saveUninitialized: false,
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 app.set("views", "./views");

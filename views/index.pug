@@ -36,6 +36,7 @@ html
               a(href="https://github.com/winterNebs/img-repo" class="btn btn-primary my-2") GitHub
               if user
                 p="Welcome "+user.name
+                p="Your balance is " + user.balance + "$"
                 a(href="/logout" class="btn btn-secondary my-2") Logout
               else
                 button(type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal") Login
