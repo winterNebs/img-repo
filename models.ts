@@ -1,21 +1,40 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
+import mongoose, {
+  Document,
+  Model,
+  PassportLocalDocument,
+  PassportLocalModel,
+  PassportLocalSchema,
+} from "mongoose";
+import passport from "passport";
+import passportLocalMongoose from "passport-local-mongoose";
 
-export class User {
-  @prop({ required: true, unique: true })
-  public name!: string;
-  @prop({ required: true })
-  public balance!: number;
+export interface IUser extends PassportLocalDocument {
+  name: string;
+  balance: number;
+}
+const userSchema = new mongoose.Schema({
+  name: String,
+  balance: Number,
+});
+userSchema.plugin(passportLocalMongoose, { usernameField: "name" });
+
+export const UserModel: PassportLocalModel<IUser> = mongoose.model(
+  "User",
+  userSchema as PassportLocalSchema
+);
+
+export interface IImage extends Document {
+  name: string;
+  price: number;
+  path: string;
+  owner: mongoose.Types.ObjectId;
 }
 
-export const UserModel = getModelForClass(User);
+const imageSchema = new mongoose.Schema({
+  name: String,
+  price: Number,
+  path: String,
+  owner: mongoose.Types.ObjectId,
+});
 
-export class Image {
-  @prop({ reuired: true, unique: true })
-  public name!: string;
-  @prop({ required: true })
-  public price!: number;
-  @prop({ required: true })
-  public path!: string;
-}
-
-export const ImageModel = getModelForClass(Image);
+export const ImageModel: Model<IImage> = mongoose.model("Image", imageSchema);
