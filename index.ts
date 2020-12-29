@@ -1,18 +1,20 @@
 import { config } from "dotenv";
-import express, { Application, Request, Response } from "express";
-//import * as fs from "fs";
+import express, { Application } from "express";
 import { join } from "path";
 import mongoose from "mongoose";
 import { IImage, ImageModel, IUser, UserModel } from "./models";
 import passport from "passport";
 import { urlencoded } from "body-parser";
 import session from "express-session";
+// import environmental variables
 config({ path: join(__dirname, "/../.env") });
 
+// standard express boilerplate
 const app: Application = express();
 const port: number = Number(process.env.PORT || 8080);
 const root: string = process.env.ROOT || "img";
 
+// setup passport for user authentication
 passport.use(UserModel.createStrategy());
 passport.serializeUser(UserModel.serializeUser());
 passport.deserializeUser(UserModel.deserializeUser());
@@ -24,7 +26,7 @@ passport.deserializeUser(UserModel.deserializeUser());
       useUnifiedTopology: true,
     });
     // hard code some db entries
-    // make this into a mongo thing??
+    // uncomment this if you are running for the first time
     /*
     let user = new UserModel({
       name: "buyer",
@@ -36,19 +38,7 @@ passport.deserializeUser(UserModel.deserializeUser());
       balance: 10,
     });
     await UserModel.register(user1, "sellerpw");
-*/
-    /*
-    const id= new mongoose.Types.ObjectID("5fe8eebbb4d4cc49436a9675");
-    const { _id: id } = await UserModel.create({
-      name: "seller",
-      balance: 5,
-      password: "sellerpw",
-    } as User);
-    await UserModel.create({
-      name: "buyer",
-      balance: 5000,
-      password: "buyerpw",
-    } as User);
+    const id= user1._id;
     await ImageModel.create({
       name: "img1",
       price: 10,
@@ -86,32 +76,40 @@ passport.deserializeUser(UserModel.deserializeUser());
 })();
 const db = mongoose.connection;
 
-app.use(express.static(root));
-app.use(urlencoded({ extended: true }));
+// setup express boilerplate
+app.use(express.static(root)); // static root for images
+app.use(urlencoded({ extended: true })); // need this for body parsing (forms)
 app.use(
+  //sessions so that users stay logged in while server is on
   session({
     secret: process.env.SECRET || "oopsies",
     resave: true,
     saveUninitialized: false,
   })
 );
-app.use(passport.initialize());
+app.use(passport.initialize()); // initialize passport
 app.use(passport.session());
 app.set("views", "./views");
 app.set("view engine", "pug");
 
 // routes
+// login route that uses passport to authenticate
 app.post("/login", passport.authenticate("local"), (req, res) => {
+  // successful login redirect to /
   res.redirect("/");
 });
+// if they try to get the login page redirect to /
 app.get("/login", (req, res) => {
   res.redirect("/");
 });
+// logout page logs them out and redirects to /
 app.get("/logout", (req, res) => {
   req.logout();
   res.redirect("/");
 });
-app.post("/sell/:id", async (req, res, next) => {
+// "sell" endpoint allows image owners to update the price of the images
+app.post("/sell/:id", async (req, res) => {
+  // make sure they are logged in
   if (!req.isAuthenticated || !req.user) {
     (req.session as any).messages = [
       {
@@ -148,7 +146,9 @@ app.post("/sell/:id", async (req, res, next) => {
   ];
   res.redirect("/");
 });
-app.post("/buy/:id", async (req, res, next) => {
+// buy endpoint lets users buy images
+app.post("/buy/:id", async (req, res) => {
+  // checks if they are logged in
   if (!req.isAuthenticated || !req.user) {
     (req.session as any).messages = [
       {
@@ -202,15 +202,21 @@ app.post("/buy/:id", async (req, res, next) => {
   ];
   res.redirect("/");
 });
+// home page
 app.get("/", async (req, res) => {
+  // get images to display on the website
   let images = await ImageModel.find({});
+  // get any messages/banners that need to be displayed
   let messages = (req.session as any).messages;
+  // clear those messages so they don't reappear again
   (req.session as any).messages = undefined;
+  // make a list of images that the user owns
   let owned: undefined | IImage[];
   if (req.user) {
     let u: IUser = req.user as IUser;
     owned = images.filter((i) => u.images.includes(i._id));
   }
+  // render the page
   res.render("index", {
     messages: messages,
     user: req.user,
@@ -222,10 +228,13 @@ app.get("/", async (req, res) => {
 
 // 404 handler
 app.use((req, res, next) => {
+  // create 404 error and pass to error handler
   let err = { message: "Not Found", status: 404 };
   next(err);
 });
+// error handler
 app.use((err: any, req: any, res: any, next: any) => {
+  // display a simple error page
   res.render("error", { title: err.message, error: err });
 });
 app.listen(port, () => {
