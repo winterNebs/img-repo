@@ -63,6 +63,8 @@ If instead of a demo, this was supposed to be a real project, here are the next 
         - Create upload endpoint, similar to buy/sell, that also takes a file
 - Use db session (ie connect-mongodb-session) instead of memory store
 ## Screenshots
-![](assets/Screenshot_2020-12-29 Img Repo.jpg)
-![](assets/Screenshot_2020-12-29 Img Repo(1).jpg)
-![](assets/Screenshot_2020-12-29 Img Repo(2).jpg)
+![](assets%2FScreenshot_2020-12-29%20Img%20Repo.jpg)
+
+![](assets%2FScreenshot_2020-12-29%20Img%20Repo%281%29.jpg)
+
+![](assets%2FScreenshot_2020-12-29%20Img%20Repo%282%29.jpg)
