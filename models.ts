@@ -11,10 +11,12 @@ import passportLocalMongoose from "passport-local-mongoose";
 export interface IUser extends PassportLocalDocument {
   name: string;
   balance: number;
+  images: mongoose.Types.ObjectId[]
 }
 const userSchema = new mongoose.Schema({
   name: String,
   balance: Number,
+  images: [mongoose.Types.ObjectId] 
 });
 userSchema.plugin(passportLocalMongoose, { usernameField: "name" });
 
